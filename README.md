@@ -51,3 +51,31 @@ Renaming a branch will:
 - Return a "Moved Permanently" response in API requests for the old branch name
 
 Learn more about [renaming a branch](https://docs.github.com/github/administering-a-repository/renaming-a-branch).
+
+### Dangling HEAD
+
+After you've renamed a branch, it's possible for your local references to have a dangling `HEAD`, which may appear in such scenarios:
+
+```shellsession
+$ git fetch --prune
+From https://github.com/<ownername>/<reponame>
+ - [deleted]         (none)     -> origin/master
+   (refs/remotes/origin/HEAD has become dangling)
+```
+
+This can impair regular git maintenance, such as `git gc` with this failure message:
+
+```shellsession
+$ git gc
+fatal: bad object refs/remotes/origin/HEAD
+fatal: failed to run repack
+```
+
+One solution is to re-set the remote reference, like so:
+
+```shellsession
+$ git remote set-head origin --auto
+
+origin/HEAD set to main
+```
+after which `git gc` will succeed.
